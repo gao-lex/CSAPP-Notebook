@@ -3,7 +3,6 @@
 int main()
 {
 
-    char a = -128;
-    unsigned char b = -a;
-    printf("%d",b);
+    float a = 15213.0;
+    
 }
