@@ -887,8 +887,7 @@ union U3{
 
 ## 10 在机器级程序中将控制与数据结合起来
 
-We review the use of the symbolic debugger GDB for examining the detailed operation of machine-level programs. Next, we see how
-understanding machine-level programs enables us to study buffer overflow, an important security vulnerability in many real-world systems. Finally, we examine how machine-level programs implement cases where the amount of stack storage required by a function can vary from one execution to another.
+We review the use of the symbolic debugger GDB for examining the detailed operation of machine-level programs. Next, we see how understanding machine-level programs enables us to study buffer overflow, an important security vulnerability in many real-world systems. Finally, we examine how machine-level programs implement cases where the amount of stack storage required by a function can vary from one execution to another.
 
 ---
 
@@ -925,6 +924,44 @@ linux> gdb prog
 ---
 
 ### 10.3 内存越界引用和缓冲区溢出
+
+`C` 对于数组引用不进行任何便捷检查，而且局部变量和状态信息（保存的寄存器和返回地址）都存放在栈中。这两种情况结合到一起就能导致很严重的程序错误。当程序使用这个被破坏的状态，试图重新加载寄存器或执行 `ret` 指令时，就会出现很严重的错误。
+
+
+一种常见的状态破坏称为 **缓冲区溢出(buffer-overflow)** 。通常，在栈中分配某个字符数组来保存一个字符串，但是字符串的长度超出了为数组分配的空间。
+
+```c
+char *gets(char *s)
+{
+    int c;
+    char *dest = s;
+    while( (c=getchar())!='\n' && c != EOF)
+        *dest++ = c;
+    if(c == EOF && dest == s)
+        return NULL;
+    *dest++ = '\0';
+    return s;
+}
+
+void echo()
+{
+    char buf[8];
+    gets(buf);
+    puts(buf);
+}
+```
+
+`gets` 的问题是它没法确定是否为保存整个字符串分配了足够的空间。在 `echo` 示例中，缓冲区只有 `8` 个字节。任何长度超出 `7` 个字符的字符串都会导致越界。
+
+
+
+```asm
+
+```
+
+
+---
+
 
 ### 10.4 对抗缓冲区溢出攻击
 
